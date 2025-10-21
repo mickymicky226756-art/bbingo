@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micky Bingo - የኦንላይን ጨዋታ</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* በ JavaScript ውስጥ ለሚጨመረው ናቪጌሽን ባር ስታይል */
+        #main-nav {
+            font-family: Arial, sans-serif;
+            font-size: 1.0em;
+        }
+        #main-nav a.active {
+            font-weight: bold;
+        }
+        /* ለገፁ አጠቃላይ ዳራ እና ፊደል (Font) ስታይል */
+        body {
+            font-family: 'Arial', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        /* የሁሉም ገጽ ይዘት መያዣ */
+        .page-container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 25px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #004a99;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .submit-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #004a99;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+        .submit-button:hover {
+            background-color: #003366;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="tel"], input[type="password"], input[type="number"], select {
+            width: calc(100% - 24px);
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .account-info {
+            padding: 15px;
+            background-color: #e6f0ff;
+            border: 1px solid #b3ccff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .account-info .balance {
+            font-size: 2em;
+            color: #008000;
+            font-weight: bold;
+            margin: 10px 0 0;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-group button {
+            flex-grow: 1;
+        }
+        /* ለተጨማሪ አዝራሮች ልዩ ስታይል */
+        .btn-recharge { background-color: #38761d; }
+        .btn-withdraw { background-color: #cc0000; }
+        .btn-recharge:hover { background-color: #274e13; }
+        .btn-withdraw:hover { background-color: #990000; }
+
+        /* የቢንጎ ገጽ ስታይሎች */
+        .bingo-controls {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .bingo-controls h3 {
+            color: #004a99;
+            margin-top: 0;
+            border-bottom: 1px dotted #ccc;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    
+    <nav id="main-nav">
+        </nav>
+
+    <div id="app-container">
+        <p style="text-align: center; margin-top: 50px;">መተግበሪያው እየተጫነ ነው...</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
