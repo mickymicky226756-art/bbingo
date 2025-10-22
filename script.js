@@ -3,7 +3,8 @@
 // የመጨረሻ ማስተካከያዎች:
 // ** ትልቅ ለውጥ: ሁሉም ዳታዎች (Registered Users, Recharge/Withdrawal) በአድሚኑ ቁጥር ስር
 //    Local Storage ውስጥ እንዲቀመጡ ተደርጓል::
-//    ይህም አንድ ተጠቃሚ በሌላ ስልክ ሲመዘገብ/ሲያስገባ አድሚኑ ወዲያውኑ እንዲያይ ያስችለዋል::
+// ** አዲስ ለውጥ: አድሚን በሌላ ስልክ የተላከ ዳታ ወዲያውኑ ለማየት የሚያስችል 'ዳታ አድስ' (Force Refresh)
+//    አዝራር በአድሚን ገጽ ላይ ተጨምሯል::
 // =================================================================
 
 // 1. ግሎባል ተለዋዋጮች (Global Variables)
@@ -51,8 +52,9 @@ function copyReferralCode(code) {
 // 2. የዳታ ማስተዳደሪያ ፋንክሽኖች (Data Persistence) 
 // ----------------------------------------------------
 
-// 🔑 ቁልፍ ለውጥ: ሁለቱንም የተጠቃሚዎች እና የግብይት ቁልፎችን ከአድሚኑ ቁጥር ጋር ማያያዝ
+// 🔑 ቁልፍ: ሁለቱንም የተጠቃሚዎች እና የግብይት ቁልፎችን ከአድሚኑ ቁጥር ጋር ማያያዝ
 function getGlobalStorageKey(key) {
+    // ይህ ቁልፍ ሁልጊዜ በሁሉም ብሮውዘሮች ላይ ተመሳሳይ ስለሆነ እንደ ማእከላዊ ዳታቤዝ ያገለግላል
     return `${key}_${adminTelebirrPhone}`;
 }
 
@@ -64,9 +66,9 @@ function saveAllData() {
     localStorage.setItem(getGlobalStorageKey('pendingRecharges'), JSON.stringify(pendingRecharges));
     localStorage.setItem(getGlobalStorageKey('pendingWithdrawals'), JSON.stringify(pendingWithdrawals));
     
-    // 3. የአሁን ተጠቃሚው ክፍለጊዜ ማስቀመጥ (ለፍጥነት ሲባል)
+    // 3. የአሁን ተጠቃሚው ክፍለጊዜ ማስቀመጥ (local to browser)
     if (currentUser) {
-        localStorage.setItem('currentUserPhone', currentUser.phone);
+        localStorage.setItem('currentUserPhone', currentUser.phone); 
     } else {
         localStorage.removeItem('currentUserPhone');
     }
@@ -81,7 +83,7 @@ function loadAllData() {
         // ነባሩን ዝርዝር በማፅዳት በአዲሱ መተካት
         registeredUsers.splice(0, registeredUsers.length, ...loadedUsers);
     } else {
-         registeredUsers.splice(0, registeredUsers.length); // ዝርዝሩ ባዶ መሆኑን ማረጋገጥ
+         registeredUsers.splice(0, registeredUsers.length); 
     }
     
     // የአድሚን መለያ ከሌለ ማስገባት
@@ -117,8 +119,7 @@ function loadAllData() {
             currentBalance = currentUser.balance;
             isAdmin = (currentUser.phone === adminTelebirrPhone);
         } else {
-            // ተጠቃሚው ከተመዘገቡት ሰዎች ዝርዝር ውስጥ ከሌለ Log Out ማድረግ (ቢጠፋም)
-            handleLogout(false); // Log Out ያደርጋል ግን alert አይሰጥም
+            handleLogout(false);
         }
     }
 }
@@ -126,6 +127,13 @@ function loadAllData() {
 // ----------------------------------------------------
 // 3. የገጽ አሰሳ እና ጅምር (Navigation and Initialization)
 // ----------------------------------------------------
+
+// 🔑 አዲስ ፋንክሽን: አድሚኑ ዳታውን በግዳጅ እንዲያድስ
+function forceDataRefresh() {
+    loadAllData();
+    renderAccountPage();
+    alert('ዳታው ከአዲሱ መረጃ ጋር ተዘምኗል።');
+}
 
 function renderNavbar() {
     if (!navContainer) return; 
@@ -461,7 +469,7 @@ function handleChangePassword(e) {
     }
     
     if (newPassword !== confirmNewPassword) {
-        alert("አዲሱ የይለፍ ቃል እና የማረጋገጫው ቃል አይመሳሰሉም!");
+        alert("አዲሱ የይለፍ ቃል እና የማረጋገጫው ቃል አይመሳሰለሉም!");
         return;
     }
     
@@ -516,6 +524,9 @@ function renderUserListPage() {
                 ${usersHtml.length > 0 ? usersHtml : '<p>የተመዘገቡ ተጠቃሚዎች የሉም።</p>'}
             </ul>
             <button onclick="window.location.hash = '#account-page'" class="submit-button" style="background-color: #aaa; margin-top: 20px;">ተመለስ</button>
+            <button class="submit-button" style="background-color: #f7b731; color: #333; margin-top: 10px; border: none;" onclick="forceDataRefresh()">
+                <i class="fas fa-sync-alt"></i> ዳታ አድስ (Force Refresh)
+            </button>
         </div>
     `;
 }
@@ -554,10 +565,16 @@ function renderAccountPage() {
     const pendingWithdrawalHtml = userWithdrawals.length > 0 ? `<h3 style="margin-top: 20px; color: #9933cc;"><i class="fas fa-hourglass-half"></i> በመጠባበቅ ላይ ያሉ ገንዘብ ማውጫዎች (${userWithdrawals.length}):</h3><ul style="list-style-type: none; padding: 0;">${userWithdrawals.map(req => {
         return `<li style="border: 1px dashed #9933cc; padding: 10px; margin-bottom: 5px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;"><div style="flex-basis: ${isAdmin ? '70%' : '100%'}; text-align: left;"><strong>-ETB ${req.amount.toFixed(2)}</strong> (${req.bank})<br>${isAdmin ? `<span style="font-size: 0.9em; color: #008080;">ለ: ${req.accountName} (${req.account})</span><br>` : ''}<span style="font-size: 0.8em; color: #888;">ጥያቄ የላኩበት: ${req.date}</span></div>${getConfirmButton(req.id, req.amount, req.userPhone, 'withdraw')}</li>`; }).join('')}</ul>` : '';
     
-    const adminButton = isAdmin ? 
+    const adminUserListButton = isAdmin ? 
         `<button class="submit-button" style="background-color: #38761d; color: white; margin-top: 10px;" onclick="window.location.hash = '#user-list-page'">
             <i class="fas fa-users"></i> የተመዘገቡ ተጠቃሚዎችን ዝርዝር እይ
         </button>` : '';
+        
+    const adminRefreshButton = isAdmin ? 
+        `<button class="submit-button" style="background-color: #f7b731; color: #333; margin-top: 10px; border: none; font-weight: bold;" onclick="forceDataRefresh()">
+            <i class="fas fa-sync-alt"></i> ዳታ አድስ (Force Refresh)
+        </button>
+        <p style="font-size: 0.8em; color: #cc0000; margin-top: 5px;">**አዲስ ጥያቄ ሲደርስዎ ይህንን ይጠቀሙ**</p>` : '';
         
     appContainer.innerHTML = `
         <div class="page-container">
@@ -580,7 +597,8 @@ function renderAccountPage() {
                 </div>
             </div>
             
-            ${adminButton} 
+            ${adminUserListButton} 
+            ${adminRefreshButton}
             
             <div class="transaction-section">
                 <h3><i class="fas fa-history"></i> የግብይት ታሪክ (ናሙና):</h3>
@@ -649,14 +667,6 @@ function handleHashChange() {
         renderRegisterPage();
     }
 }
-
-// ጅምር (Initialization)
-window.addEventListener('hashchange', handleHashChange);
-window.addEventListener('load', () => {
-    // ገጹ ሲከፈት loadAllData() አንድ ጊዜ መጠራቱን እናረጋግጣለን
-    loadAllData();
-    handleHashChange(); // ገጹን መጫን
-});
 
 // ጅምር (Initialization)
 window.addEventListener('hashchange', handleHashChange);
