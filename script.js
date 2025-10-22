@@ -1,25 +1,25 @@
 // =================================================================
 // ETHIO BINGO - FRONT-END JAVASCRIPT LOGIC (script.js)
 // የመጨረሻ ማስተካከያዎች:
-// ** ትልቅ ለውጥ: የግብይት ጥያቄዎች (Recharge/Withdrawal) በሁሉም ብሮውዘሮች ላይ እንዲታዩ ተስተካክሏል::
-//    - ጥያቄዎች በአድሚኑ ስልክ ቁጥር ስም Local Storage ውስጥ ይቀመጣሉ::
+// ** ትልቅ ለውጥ: ሁሉም ዳታዎች (Registered Users, Recharge/Withdrawal) በአድሚኑ ቁጥር ስር
+//    Local Storage ውስጥ እንዲቀመጡ ተደርጓል::
+//    ይህም አንድ ተጠቃሚ በሌላ ስልክ ሲመዘገብ/ሲያስገባ አድሚኑ ወዲያውኑ እንዲያይ ያስችለዋል::
 // =================================================================
 
 // 1. ግሎባል ተለዋዋጮች (Global Variables)
 let isLoggedIn = false; 
 let currentBalance = 0.00; 
 let currentUser = null; 
-// እነዚህ ተለዋዋጮች የሚቀመጡት በአድሚኑ ስልክ ቁጥር ስም ስለሆነ ባዶ ሆነው ይጀምራሉ
+// እነዚህ ተለዋዋጮች የሚሞሉት ከ Local Storage ላይ ነው
 let pendingRecharges = []; 
 let pendingWithdrawals = []; 
 let isAdmin = false; 
 const appContainer = document.getElementById('app-container');
 const navContainer = document.getElementById('main-nav'); 
-const adminTelebirrPhone = '0922675655'; 
+const adminTelebirrPhone = '0922675655'; // የአድሚኑ ቋሚ ቁጥር
 const adminTelebirrName = 'ሚኪያስ'; 
 
 // የተመዘገቡ ተጠቃሚዎችን መረጃ ለማስቀመጥ
-// NB: ይህ የጀርባ ዳታቤዝ ምትክ ሲሆን ሁልጊዜ ከLocal Storage ይጫናል
 const registeredUsers = []; 
 
 // የአድሚን መለያውን በቅድሚያ ወደ ዝርዝሩ ማስገባት
@@ -51,21 +51,20 @@ function copyReferralCode(code) {
 // 2. የዳታ ማስተዳደሪያ ፋንክሽኖች (Data Persistence) 
 // ----------------------------------------------------
 
-function getAdminStorageKey(key) {
-    // የግብይት ጥያቄዎችን በአድሚኑ ቁጥር ስም Local Storage ውስጥ ለማስቀመጥ የሚያገለግል ቁልፍ ይመልሳል
+// 🔑 ቁልፍ ለውጥ: ሁለቱንም የተጠቃሚዎች እና የግብይት ቁልፎችን ከአድሚኑ ቁጥር ጋር ማያያዝ
+function getGlobalStorageKey(key) {
     return `${key}_${adminTelebirrPhone}`;
 }
 
 function saveAllData() {
-    // የተጠቃሚዎችን መረጃ (ሁሉም ተጠቃሚዎች) ሁልጊዜ እናስቀምጣለን
-    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    // 1. የተጠቃሚዎችን መረጃ በ GLOBAL ቁልፍ ማስቀመጥ
+    localStorage.setItem(getGlobalStorageKey('registeredUsers'), JSON.stringify(registeredUsers));
     
-    // የግብይት ጥያቄዎችን በአድሚን ስልክ ቁጥር ስም Local Storage ውስጥ ማስቀመጥ
-    // ይህ ማለት ሁሉም ብሮውዘሮች ጥያቄዎቹን በዚህ ቁልፍ ስር ያዩታል ማለት ነው
-    localStorage.setItem(getAdminStorageKey('pendingRecharges'), JSON.stringify(pendingRecharges));
-    localStorage.setItem(getAdminStorageKey('pendingWithdrawals'), JSON.stringify(pendingWithdrawals));
+    // 2. የግብይት ጥያቄዎችን በ GLOBAL ቁልፍ ማስቀመጥ
+    localStorage.setItem(getGlobalStorageKey('pendingRecharges'), JSON.stringify(pendingRecharges));
+    localStorage.setItem(getGlobalStorageKey('pendingWithdrawals'), JSON.stringify(pendingWithdrawals));
     
-    // የአሁን ተጠቃሚው መለያ መረጃን ማስቀመጥ (ለፍጥነት ሲባል)
+    // 3. የአሁን ተጠቃሚው ክፍለጊዜ ማስቀመጥ (ለፍጥነት ሲባል)
     if (currentUser) {
         localStorage.setItem('currentUserPhone', currentUser.phone);
     } else {
@@ -74,16 +73,15 @@ function saveAllData() {
 }
 
 function loadAllData() {
-    // መረጃዎችን ከ Local Storage ውስጥ ይጭናል
-    const savedUsers = localStorage.getItem('registeredUsers');
-    const savedRechargesAdmin = localStorage.getItem(getAdminStorageKey('pendingRecharges'));
-    const savedWithdrawalsAdmin = localStorage.getItem(getAdminStorageKey('pendingWithdrawals'));
-    const savedCurrentUserPhone = localStorage.getItem('currentUserPhone');
-
-    // 1. የተጠቃሚዎችን መረጃ መጫን (በየትኛውም ስልክ ላይ የተመዘገቡትን)
-    if (savedUsers) {
-        const loadedUsers = JSON.parse(savedUsers);
+    // 1. የተጠቃሚዎችን መረጃ ከ GLOBAL ቁልፍ መጫን
+    const savedUsersGlobal = localStorage.getItem(getGlobalStorageKey('registeredUsers'));
+    
+    if (savedUsersGlobal) {
+        const loadedUsers = JSON.parse(savedUsersGlobal);
+        // ነባሩን ዝርዝር በማፅዳት በአዲሱ መተካት
         registeredUsers.splice(0, registeredUsers.length, ...loadedUsers);
+    } else {
+         registeredUsers.splice(0, registeredUsers.length); // ዝርዝሩ ባዶ መሆኑን ማረጋገጥ
     }
     
     // የአድሚን መለያ ከሌለ ማስገባት
@@ -92,27 +90,36 @@ function loadAllData() {
          registeredUsers.push(defaultAdmin);
     }
     
-    // 2. የተጠቃሚው ክፍለጊዜ (Session) ካለ መጫን
+    // 2. የግብይት መረጃዎችን ከ GLOBAL ቁልፍ መጫን
+    const savedRechargesGlobal = localStorage.getItem(getGlobalStorageKey('pendingRecharges'));
+    const savedWithdrawalsGlobal = localStorage.getItem(getGlobalStorageKey('pendingWithdrawals'));
+    
+    if (savedRechargesGlobal) {
+        pendingRecharges.splice(0, pendingRecharges.length, ...JSON.parse(savedRechargesGlobal));
+    } else {
+        pendingRecharges.splice(0, pendingRecharges.length);
+    }
+    
+    if (savedWithdrawalsGlobal) {
+        pendingWithdrawals.splice(0, pendingWithdrawals.length, ...JSON.parse(savedWithdrawalsGlobal));
+    } else {
+         pendingWithdrawals.splice(0, pendingWithdrawals.length);
+    }
+    
+    // 3. የተጠቃሚው ክፍለጊዜ (Session) ካለ መጫን
+    const savedCurrentUserPhone = localStorage.getItem('currentUserPhone');
+    
     if (savedCurrentUserPhone) {
+        // ሁልጊዜ ከተጫነው GLOBAL ዝርዝር ላይ መፈለግ
         currentUser = registeredUsers.find(user => user.phone === savedCurrentUserPhone);
         if (currentUser) {
             isLoggedIn = true;
             currentBalance = currentUser.balance;
             isAdmin = (currentUser.phone === adminTelebirrPhone);
+        } else {
+            // ተጠቃሚው ከተመዘገቡት ሰዎች ዝርዝር ውስጥ ከሌለ Log Out ማድረግ (ቢጠፋም)
+            handleLogout(false); // Log Out ያደርጋል ግን alert አይሰጥም
         }
-    }
-    
-    // 3. የግብይት መረጃዎችን መጫን (ሁልጊዜ ከአድሚኑ ቁልፍ ስር)
-    if (savedRechargesAdmin) {
-        pendingRecharges.splice(0, pendingRecharges.length, ...JSON.parse(savedRechargesAdmin));
-    } else {
-        pendingRecharges.splice(0, pendingRecharges.length); // ባዶ ማድረግ
-    }
-    
-    if (savedWithdrawalsAdmin) {
-        pendingWithdrawals.splice(0, pendingWithdrawals.length, ...JSON.parse(savedWithdrawalsAdmin));
-    } else {
-         pendingWithdrawals.splice(0, pendingWithdrawals.length); // ባዶ ማድረግ
     }
 }
 
@@ -208,7 +215,7 @@ function renderRegisterPage() {
 }
 function handleRegistration(e) {
     e.preventDefault();
-    loadAllData(); // ከመመዝገብ በፊት ያሉትን ተጠቃሚዎች መጫን
+    loadAllData(); // ከመመዝገብ በፊት ያሉትን ተጠቃሚዎች መጫን (ሁልጊዜ GLOBAL ዝርዝሩን)
     
     const name = document.getElementById('reg-name').value.trim(); 
     const phone = document.getElementById('reg-phone').value;
@@ -218,13 +225,13 @@ function handleRegistration(e) {
     if (password !== confirmPassword) { alert('የይለፍ ቃሉ እና የማረጋገጫ ይለፍ ቃሉ አይመሳሰለሉም! እባክዎ በትክክል ያስገቡ።'); return; }
     if (name.length < 2) { alert('እባክዎ ትክክለኛ ስምዎን ያስገቡ።'); return; }
     
-    // የተጫነውን ዝርዝር በመጠቀም ማረጋገጥ
+    // የተጫነውን GLOBAL ዝርዝር በመጠቀም ማረጋገጥ
     if (registeredUsers.some(user => user.phone === phone)) { alert(`ይህ ስልክ ቁጥር (${phone}) አስቀድሞ ተመዝግቧል። ወደ መግቢያ ገጽ ይሂዱ።`); return; }
     
     const newReferralCode = generateReferralCode(phone);
     
     const newUser = { phone: phone, password: password, name: name, balance: 0.00, referralCode: newReferralCode };
-    registeredUsers.push(newUser);
+    registeredUsers.push(newUser); // ወደ GLOBAL ዝርዝር መጨመር
     
     let rewardMessage = '';
     if (inviteCode) {
@@ -242,7 +249,7 @@ function handleRegistration(e) {
         else { alert("ያስገቡት የመጋበዣ ኮድ ትክክል አይደለም።"); }
     }
     
-    saveAllData(); 
+    saveAllData(); // GLOBAL ዝርዝሩን ማስቀመጥ (ለአድሚኑ እንዲደርሰው)
     
     alert(`በተሳካ ሁኔታ ተመዝግበዋል! አሁን መግባት ይችላሉ። ${rewardMessage}`);
     window.location.hash = '#login-page'; 
@@ -254,12 +261,12 @@ function renderLoginPage() {
 
 function handleLogin(e) {
     e.preventDefault();
-    loadAllData(); // ከመግባት በፊት ያሉትን ተጠቃሚዎች መጫን (በሌላ ስልክ የተመዘገቡትንም ጨምሮ)
+    loadAllData(); // ከመግባት በፊት ያሉትን ተጠቃሚዎች መጫን (GLOBAL ዝርዝሩን)
     
     const phone = document.getElementById('log-phone').value;
     const password = document.getElementById('log-password').value;
     
-    // የተጫነውን ዝርዝር በመጠቀም መፈለግ
+    // የተጫነውን GLOBAL ዝርዝር በመጠቀም መፈለግ
     const userFound = registeredUsers.find(user => user.phone === phone && user.password === password);
     
     if (userFound) {
@@ -295,7 +302,7 @@ function renderRechargeFormPage() {
 }
 function handleRechargeRequest(e) {
     e.preventDefault();
-    loadAllData(); // የቅርብ ጊዜዎቹን ጥያቄዎች ጫን
+    loadAllData(); // የቅርብ ጊዜዎቹን ጥያቄዎች እና የተጠቃሚዎች ዝርዝር ጫን
     
     const amount = document.getElementById('recharge-amount').value;
     const transactionId = document.getElementById('transaction-id').value;
@@ -309,7 +316,7 @@ function handleRechargeRequest(e) {
     // ጥያቄውን መጨመር
     pendingRecharges.push(request); 
     
-    // በአድሚን ቁልፍ ስም ማስቀመጥ (ሁሉም ብሮውዘር እንዲያየው)
+    // በ GLOBAL ቁልፍ ስም ማስቀመጥ (ሁሉም ብሮውዘር እንዲያየው)
     saveAllData(); 
     
     alert(`የ ETB ${numAmount.toFixed(2)} ማስገቢያ ጥያቄዎ በተሳካ ሁኔታ ተልኳል።`);
@@ -319,9 +326,9 @@ function confirmRecharge(requestId, amount, userPhone) {
     if (!isAdmin) { alert("ይህንን ተግባር ማከናወን የሚችሉት አድሚኖች ብቻ ናቸው!"); return; }
     if (!confirm(`ይህንን የ ${amount.toFixed(2)} ETB ገቢ በእርግጥ ለተጠቃሚ ${userPhone} ማረጋገጥ ይፈልጋሉ?`)) { return; }
     
-    loadAllData(); // የቅርብ ጊዜውን ዳታ መጫን
+    loadAllData(); // የቅርብ ጊዜውን GLOBAL ዳታ መጫን
     
-    // ተጠቃሚውን ከዳታቤዝ (registeredUsers) ላይ ፈልጎ ማግኘት
+    // ተጠቃሚውን ከ GLOBAL ዝርዝር ላይ ፈልጎ ማግኘት
     const targetUser = registeredUsers.find(user => user.phone === userPhone);
     
     if (targetUser) {
@@ -333,6 +340,7 @@ function confirmRecharge(requestId, amount, userPhone) {
              registeredUsers[userIndex] = targetUser;
         }
         
+        // አሁን ያለውን ተጠቃሚ (አድሚኑ ራሱ) ቀሪ ሂሳብ ማዘመን (ቢያስፈልግ)
         if (currentUser && currentUser.phone === userPhone) { currentUser.balance = targetUser.balance; }
         
         alert(`ETB ${amount.toFixed(2)} በተሳካ ሁኔታ ወደ ተጠቃሚ ${userPhone} ሂሳብ ገብቷል።`);
@@ -341,13 +349,13 @@ function confirmRecharge(requestId, amount, userPhone) {
     // የተረጋገጠውን ጥያቄ ከዝርዝሩ ማስወገድ
     pendingRecharges = pendingRecharges.filter(req => req.id !== requestId);
     
-    saveAllData(); 
+    saveAllData(); // GLOBAL ዝርዝሩን ማስቀመጥ
     
     renderAccountPage();
 }
 function handleWithdraw(e) {
     e.preventDefault();
-    loadAllData(); // የቅርብ ጊዜዎቹን ጥያቄዎች ጫን
+    loadAllData(); // የቅርብ ጊዜዎቹን ጥያቄዎች እና የተጠቃሚዎች ዝርዝር ጫን
     
     const bank = document.getElementById('withdraw-bank').value;
     const account = document.getElementById('withdraw-account').value;
@@ -356,13 +364,20 @@ function handleWithdraw(e) {
     const numAmount = parseFloat(amount);
     
     if (numAmount < 10) { alert("ቢያንስ 10 ETB ማውጣት አለብዎት።"); return; }
-    if (numAmount > currentUser.balance) { alert("በመለያዎ ውስጥ በቂ ገንዘብ የለም! ቀሪ ሂሳብ: ETB " + currentUser.balance.toFixed(2)); return; }
+    
+    // የቅርብ ጊዜው ቀሪ ሂሳብ ላይ መሞከር
+    const updatedUser = registeredUsers.find(u => u.phone === currentUser.phone);
+    if (!updatedUser || numAmount > updatedUser.balance) { 
+        alert("በመለያዎ ውስጥ በቂ ገንዘብ የለም! ቀሪ ሂሳብ: ETB " + (updatedUser ? updatedUser.balance.toFixed(2) : currentBalance.toFixed(2))); 
+        return; 
+    }
     
     // ገንዘቡን መቀነስ
-    currentUser.balance -= numAmount; 
+    updatedUser.balance -= numAmount; 
+    currentUser.balance = updatedUser.balance;
     currentBalance = currentUser.balance; 
     
-    // በዝርዝሩ ላይ ያለውንም መረጃ ማዘመን
+    // በ GLOBAL ዝርዝር ላይ ያለውንም መረጃ ማዘመን
     const userIndex = registeredUsers.findIndex(u => u.phone === currentUser.phone);
     if (userIndex !== -1) {
         registeredUsers[userIndex].balance = currentBalance;
@@ -372,7 +387,7 @@ function handleWithdraw(e) {
     const request = { id: Date.now(), userPhone: currentUser.phone, userName: currentUser.name, amount: numAmount, bank: bank, account: account, accountName: name, date: new Date().toLocaleString('am-ET'), status: 'Pending' };
     pendingWithdrawals.push(request); 
     
-    // በአድሚን ቁልፍ ስም ማስቀመጥ (ሁሉም ብሮውዘር እንዲያየው)
+    // በ GLOBAL ቁልፍ ስም ማስቀመጥ (ሁሉም ብሮውዘር እንዲያየው)
     saveAllData(); 
     
     alert(`የ ETB ${numAmount.toFixed(2)} የማውጫ ጥያቄዎ በተሳካ ሁኔታ ተልኳል።`);
@@ -381,7 +396,7 @@ function handleWithdraw(e) {
 function confirmWithdrawal(requestId) {
     if (!isAdmin) { alert("ይህንን ተግባር ማከናወን የሚችሉት አድሚኖች ብቻ ናቸው!"); return; }
     
-    loadAllData(); // የቅርብ ጊዜውን ዳታ መጫን
+    loadAllData(); // የቅርብ ጊዜውን GLOBAL ዳታ መጫን
     
     const request = pendingWithdrawals.find(req => req.id === requestId);
     if (!request) { alert("ይህ የማውጫ ጥያቄ አልተገኘም!"); return; }
@@ -390,7 +405,7 @@ function confirmWithdrawal(requestId) {
     // የተረጋገጠውን ጥያቄ ከዝርዝሩ ማስወገድ
     pendingWithdrawals = pendingWithdrawals.filter(req => req.id !== requestId);
     
-    saveAllData(); 
+    saveAllData(); // GLOBAL ዝርዝሩን ማስቀመጥ
     
     renderAccountPage();
 }
@@ -458,13 +473,13 @@ function handleChangePassword(e) {
     // 3. የይለፍ ቃሉን በcurrentUser ላይ ማዘመን
     currentUser.password = newPassword;
 
-    // 4. በጠቅላላ የተጠቃሚዎች ዝርዝር ውስጥ ማዘመን እና ዳታውን ማስቀመጥ
+    // 4. በ GLOBAL ዝርዝር ውስጥ ማዘመን እና ዳታውን ማስቀመጥ
     const userIndex = registeredUsers.findIndex(u => u.phone === currentUser.phone);
     if (userIndex !== -1) {
         registeredUsers[userIndex].password = newPassword;
     }
     
-    saveAllData();
+    saveAllData(); // GLOBAL ዝርዝሩን ማስቀመጥ
 
     alert("የይለፍ ቃልዎ በተሳካ ሁኔታ ተቀይሯል።");
     window.location.hash = '#account-page';
@@ -473,6 +488,37 @@ function handleChangePassword(e) {
 // ----------------------------------------------------
 // 4. የገጽ አሳሾች (Page Renderers)
 // ----------------------------------------------------
+
+// አዲስ የተመዘገቡ ተጠቃሚዎችን ዝርዝር የሚያሳይ ገጽ
+function renderUserListPage() {
+     if (!isAdmin) { 
+        alert('ይህንን ገጽ ማየት የሚችሉት አድሚኖች ብቻ ናቸው!'); 
+        window.location.hash = '#account-page'; 
+        return; 
+    }
+    
+    loadAllData(); // የቅርብ ጊዜውን GLOBAL ዝርዝር መጫን
+    
+    const usersHtml = registeredUsers.filter(u => u.phone !== adminTelebirrPhone).map(user => `
+        <li style="border: 1px solid #ccc; padding: 10px; margin-bottom: 8px; border-radius: 4px; background-color: #f9f9f9;">
+            <strong>ስም:</strong> ${user.name}<br>
+            <strong>ስልክ ቁጥር:</strong> ${user.phone}<br>
+            <strong>ቀሪ ሂሳብ:</strong> ETB ${user.balance.toFixed(2)}<br>
+            <strong>ኮድ:</strong> ${user.referralCode}
+        </li>
+    `).join('');
+    
+    appContainer.innerHTML = `
+        <div class="page-container">
+            <h2><i class="fas fa-users"></i> የተመዘገቡ ተጠቃሚዎች ዝርዝር</h2>
+            <p>ጠቅላላ ተጠቃሚዎች (ከአድሚን ውጪ): ${registeredUsers.length - 1}</p>
+            <ul style="list-style-type: none; padding: 0; text-align: left; margin-top: 15px;">
+                ${usersHtml.length > 0 ? usersHtml : '<p>የተመዘገቡ ተጠቃሚዎች የሉም።</p>'}
+            </ul>
+            <button onclick="window.location.hash = '#account-page'" class="submit-button" style="background-color: #aaa; margin-top: 20px;">ተመለስ</button>
+        </div>
+    `;
+}
 
 function renderAccountPage() {
     if (!isLoggedIn || !currentUser) { alert('መጀመሪያ ይግቡ!'); window.location.hash = '#login-page'; return; }
@@ -490,23 +536,29 @@ function renderAccountPage() {
     function getConfirmButton(reqId, reqAmount, reqPhone, type) {
         if (isAdmin) {
             if (type === 'recharge') {
-                 return `<button onclick="confirmRecharge(${reqId}, ${reqAmount}, '${reqPhone}')" style="flex-basis: 25%; padding: 5px; background-color: #38761d; color: white; border: none; border-radius: 4px; cursor: pointer;">ገቢ አረጋግጥ</button>`;
+                 return `<button onclick="confirmRecharge(${reqId}, ${reqAmount}, '${reqPhone}')" style="flex-basis: 25%; padding: 5px; background-color: #38761d; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 5px;">ገቢ አረጋግጥ</button>`;
             } else if (type === 'withdraw') {
-                 return `<button onclick="confirmWithdrawal(${reqId})" style="flex-basis: 25%; padding: 5px; background-color: #004a99; color: white; border: none; border-radius: 4px; cursor: pointer;">ክፍያ አረጋግጥ</button>`;
+                 return `<button onclick="confirmWithdrawal(${reqId})" style="flex-basis: 25%; padding: 5px; background-color: #004a99; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 5px;">ክፍያ አረጋግጥ</button>`;
             }
         }
-        return '<span style="color: red; font-weight: bold;">በመጠባበቅ ላይ...</span>';
+        return '<span style="color: red; font-weight: bold; margin-top: 5px; display: block;">በመጠባበቅ ላይ...</span>';
     }
     
+    // አድሚን ከሆነ ሁሉንም ጥያቄ ያያል፣ ካልሆነ የራሱን ብቻ
     const userRecharges = pendingRecharges.filter(req => isAdmin || req.userPhone === currentUser.phone);
     const userWithdrawals = pendingWithdrawals.filter(req => isAdmin || req.userPhone === currentUser.phone);
     
-    const pendingRechargeHtml = userRecharges.length > 0 ? `<h3 style="margin-top: 20px; color: #cc0000;"><i class="fas fa-clock"></i> በመጠባበቅ ላይ ያሉ ገቢዎች:</h3><ul style="list-style-type: none; padding: 0;">${userRecharges.map(req => {
+    const pendingRechargeHtml = userRecharges.length > 0 ? `<h3 style="margin-top: 20px; color: #cc0000;"><i class="fas fa-clock"></i> በመጠባበቅ ላይ ያሉ ገቢዎች (${userRecharges.length}):</h3><ul style="list-style-type: none; padding: 0;">${userRecharges.map(req => {
         return `<li style="border: 1px dashed #ffcc00; padding: 10px; margin-bottom: 5px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;"><div style="flex-basis: ${isAdmin ? '70%' : '100%'}; text-align: left;"><strong>+${req.amount.toFixed(2)} ETB</strong> - ID: <span style="font-weight: bold; color: #004a99;">${req.transactionId}</span>${isAdmin ? `<br><span style="font-size: 0.9em; color: #008080;">ለ: ${req.userPhone}</span>` : ''}<br><span style="font-size: 0.8em; color: #888;">ጥያቄ የላኩበት: ${req.date}</span></div>${getConfirmButton(req.id, req.amount, req.userPhone, 'recharge')}</li>`; }).join('')}</ul>` : '';
     
-    const pendingWithdrawalHtml = userWithdrawals.length > 0 ? `<h3 style="margin-top: 20px; color: #9933cc;"><i class="fas fa-hourglass-half"></i> በመጠባበቅ ላይ ያሉ ገንዘብ ማውጫዎች:</h3><ul style="list-style-type: none; padding: 0;">${userWithdrawals.map(req => {
+    const pendingWithdrawalHtml = userWithdrawals.length > 0 ? `<h3 style="margin-top: 20px; color: #9933cc;"><i class="fas fa-hourglass-half"></i> በመጠባበቅ ላይ ያሉ ገንዘብ ማውጫዎች (${userWithdrawals.length}):</h3><ul style="list-style-type: none; padding: 0;">${userWithdrawals.map(req => {
         return `<li style="border: 1px dashed #9933cc; padding: 10px; margin-bottom: 5px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;"><div style="flex-basis: ${isAdmin ? '70%' : '100%'}; text-align: left;"><strong>-ETB ${req.amount.toFixed(2)}</strong> (${req.bank})<br>${isAdmin ? `<span style="font-size: 0.9em; color: #008080;">ለ: ${req.accountName} (${req.account})</span><br>` : ''}<span style="font-size: 0.8em; color: #888;">ጥያቄ የላኩበት: ${req.date}</span></div>${getConfirmButton(req.id, req.amount, req.userPhone, 'withdraw')}</li>`; }).join('')}</ul>` : '';
     
+    const adminButton = isAdmin ? 
+        `<button class="submit-button" style="background-color: #38761d; color: white; margin-top: 10px;" onclick="window.location.hash = '#user-list-page'">
+            <i class="fas fa-users"></i> የተመዘገቡ ተጠቃሚዎችን ዝርዝር እይ
+        </button>` : '';
+        
     appContainer.innerHTML = `
         <div class="page-container">
             <h2><i class="fas fa-user-circle"></i> የኔ መለያ ${isAdmin ? ' (Admin)' : ''}</h2>
@@ -526,8 +578,9 @@ function renderAccountPage() {
                     <button class="btn-recharge" onclick="window.location.hash = '#recharge-form-page'"><i class="fas fa-plus-circle"></i> ገንዘብ አስገባ</button>
                     <button class="btn-withdraw" onclick="window.location.hash = '#withdraw-form-page'"><i class="fas fa-minus-circle"></i> ገንዘብ አውጣ</button>
                 </div>
-                <div class="btn-group" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"></div>
             </div>
+            
+            ${adminButton} 
             
             <div class="transaction-section">
                 <h3><i class="fas fa-history"></i> የግብይት ታሪክ (ናሙና):</h3>
@@ -550,14 +603,16 @@ function renderAccountPage() {
         </div>`;
 }
 
-function handleLogout() {
+function handleLogout(showAlert = true) {
     isLoggedIn = false;
     isAdmin = false;
     currentUser = null;
     currentBalance = 0.00; 
     
     saveAllData(); 
-    alert('ከመለያዎ ወጥተዋል::');
+    if (showAlert) {
+         alert('ከመለያዎ ወጥተዋል::');
+    }
     renderNavbar();
     window.location.hash = '#login-page';
 }
@@ -587,11 +642,21 @@ function handleHashChange() {
         renderWithdrawFormPage();
     } else if (hash === '#change-password-page') { 
         renderChangePasswordPage();
+    } else if (hash === '#user-list-page') { // አዲስ የአድሚን ገጽ
+        renderUserListPage();
     } else {
         // ወደ መነሻ ገጽ (ምዝገባ) ይመልሳል
         renderRegisterPage();
     }
 }
+
+// ጅምር (Initialization)
+window.addEventListener('hashchange', handleHashChange);
+window.addEventListener('load', () => {
+    // ገጹ ሲከፈት loadAllData() አንድ ጊዜ መጠራቱን እናረጋግጣለን
+    loadAllData();
+    handleHashChange(); // ገጹን መጫን
+});
 
 // ጅምር (Initialization)
 window.addEventListener('hashchange', handleHashChange);
