@@ -2279,11 +2279,11 @@
                             <div style="font-size:0.65em; color:var(--text-muted); font-weight:600;">1-on-1 support</div>
                         </div>
                     </div>
-                    <div onclick="closeWelcomePopup(); openSupport('group');" style="background:white; border:1.5px solid rgba(0,166,81,0.12); border-radius:16px; padding:14px 12px; cursor:pointer; display:flex; align-items:center; gap:10px; transition:all 0.3s;" onmouseover="this.style.borderColor='var(--success)'; this.style.background='#f0fff8'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,166,81,0.12)'; this.style.background='white'; this.style.transform=''">
-                        <div style="width:36px; height:36px; background:rgba(0,166,81,0.08); color:var(--success); border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fas fa-users-rectangle"></i></div>
+                    <div onclick="closeWelcomePopup(); openSupport('bot');" style="background:white; border:1.5px solid rgba(0,136,204,0.12); border-radius:16px; padding:14px 12px; cursor:pointer; display:flex; align-items:center; gap:10px; transition:all 0.3s;" onmouseover="this.style.borderColor='#0088cc'; this.style.background='#f0f8ff'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,136,204,0.12)'; this.style.background='white'; this.style.transform=''">
+                        <div style="width:36px; height:36px; background:rgba(0,136,204,0.08); color:#0088cc; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fab fa-telegram"></i></div>
                         <div>
-                            <div style="font-size:0.82em; font-weight:900; color:var(--text-dark);">Community</div>
-                            <div style="font-size:0.65em; color:var(--text-muted); font-weight:600;">Investor group</div>
+                            <div style="font-size:0.82em; font-weight:900; color:var(--text-dark);">Telegram Bot</div>
+                            <div style="font-size:0.65em; color:var(--text-muted); font-weight:600;">Live assistant</div>
                         </div>
                     </div>
                 </div>
@@ -4902,24 +4902,11 @@
                     </div>
                 </div>
 
-                <!-- 2-Button row: Community + Announcements -->
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
-
-                    <!-- Investor Community -->
-                    <div onclick="window.open('https://t.me/+xZdsC4pmUapkZDY0', '_blank')" style="background:white; border:1px solid var(--border); border-radius:20px; padding:20px 16px; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 14px 35px rgba(0,166,81,0.15)'; this.style.borderColor='rgba(0,166,81,0.3)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.06)'; this.style.borderColor='var(--border)'">
-                        <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--success), #22c55e); border-radius:20px 20px 0 0;"></div>
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                            <div style="width:44px; height:44px; background:rgba(0,166,81,0.1); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.3em; color:var(--success);">
-                                <i class="fas fa-users-rectangle"></i>
-                            </div>
-                            <i class="fas fa-arrow-right" style="color:var(--text-muted); font-size:0.85em; margin-top:4px;"></i>
-                        </div>
-                        <div style="font-size:0.9em; font-weight:900; color:var(--text-dark); margin-bottom:4px;">Investor<br>Community</div>
-                        <div style="font-size:0.7em; color:var(--text-muted); font-weight:600; line-height:1.4;">Discuss strategies & connect with peers.</div>
-                    </div>
+                <!-- Announcements - Full Width -->
+                <div style="margin-bottom:14px;">
 
                     <!-- Official Announcements -->
-                    <div onclick="window.open('https://t.me/+dhT-OEP10zIyN2Jk', '_blank')" style="background:white; border:1px solid var(--border); border-radius:20px; padding:20px 16px; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 14px 35px rgba(0,136,204,0.15)'; this.style.borderColor='rgba(0,136,204,0.3)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.06)'; this.style.borderColor='var(--border)'">
+                    <div onclick="openSupport('channel')" style="background:white; border:1px solid var(--border); border-radius:20px; padding:20px 16px; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 14px 35px rgba(0,136,204,0.15)'; this.style.borderColor='rgba(0,136,204,0.3)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.06)'; this.style.borderColor='var(--border)'">
                         <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #0088cc, #29b6f6); border-radius:20px 20px 0 0;"></div>
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
                             <div style="width:44px; height:44px; background:rgba(0,136,204,0.1); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.3em; color:#0088cc;">
@@ -4927,7 +4914,7 @@
                             </div>
                             <i class="fas fa-arrow-right" style="color:var(--text-muted); font-size:0.85em; margin-top:4px;"></i>
                         </div>
-                        <div style="font-size:0.9em; font-weight:900; color:var(--text-dark); margin-bottom:4px;">Official<br>Announcements</div>
+                        <div style="font-size:0.9em; font-weight:900; color:var(--text-dark); margin-bottom:4px;">Official Announcements</div>
                         <div style="font-size:0.7em; color:var(--text-muted); font-weight:600; line-height:1.4;">News, updates & daily yield reports.</div>
                     </div>
                 </div>
@@ -8281,7 +8268,11 @@
                 if(all) {
                     Object.values(all).forEach(u => {
                         if(u.refBy === currentUser.refCode) {
-                            l1Count++;
+                            // Active ሰዎችን ብቻ ቁጠር - invest ያደረጉ (totalDep > 0) እና noCommission ያልሆኑ
+                            const isActive = (u.totalDep || 0) > 0 && !u.noCommission;
+                            if(isActive) {
+                                l1Count++;
+                            }
                         }
                     });
                 }
