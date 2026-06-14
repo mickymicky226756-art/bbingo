@@ -4902,10 +4902,10 @@
                     </div>
                 </div>
 
-                <!-- Announcements - Full Width -->
-                <div style="margin-bottom:14px;">
+                <!-- Announcements + Group - Side by Side -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
 
-                    <!-- Official Announcements -->
+                    <!-- Official Announcements (Channel) -->
                     <div onclick="openSupport('channel')" style="background:white; border:1px solid var(--border); border-radius:20px; padding:20px 16px; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 14px 35px rgba(0,136,204,0.15)'; this.style.borderColor='rgba(0,136,204,0.3)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.06)'; this.style.borderColor='var(--border)'">
                         <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #0088cc, #29b6f6); border-radius:20px 20px 0 0;"></div>
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
@@ -4916,6 +4916,19 @@
                         </div>
                         <div style="font-size:0.9em; font-weight:900; color:var(--text-dark); margin-bottom:4px;">Official Announcements</div>
                         <div style="font-size:0.7em; color:var(--text-muted); font-weight:600; line-height:1.4;">News, updates & daily yield reports.</div>
+                    </div>
+
+                    <!-- Community Group -->
+                    <div onclick="openSupport('group')" style="background:white; border:1px solid var(--border); border-radius:20px; padding:20px 16px; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 14px 35px rgba(74,222,128,0.15)'; this.style.borderColor='rgba(74,222,128,0.3)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.06)'; this.style.borderColor='var(--border)'">
+                        <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #4ade80, #22c55e); border-radius:20px 20px 0 0;"></div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                            <div style="width:44px; height:44px; background:rgba(74,222,128,0.12); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.3em; color:#22c55e;">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <i class="fas fa-arrow-right" style="color:var(--text-muted); font-size:0.85em; margin-top:4px;"></i>
+                        </div>
+                        <div style="font-size:0.9em; font-weight:900; color:var(--text-dark); margin-bottom:4px;">Community Group</div>
+                        <div style="font-size:0.7em; color:var(--text-muted); font-weight:600; line-height:1.4;">Join investors & share insights.</div>
                     </div>
                 </div>
 
